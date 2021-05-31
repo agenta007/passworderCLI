@@ -2,11 +2,13 @@
 #define USER_H
 using namespace std;
 #include <string>
+#include "Website.h"
 class User
 {
 	string username;
 	string masterpass;
 	bool logged_on;
+	//Website* webEntries;
 public:
 	User();
 	User(string, string,bool logged_on=false);
@@ -17,8 +19,9 @@ public:
 	string getPass()const;
 	int changePassWithParam(string);
 	bool changePass();
-	static User* register_user(User*);
+	static void register_user(User*);
 	static User* delete_user(User*);
-	User& operator=(const User&);
+	void operator=(const User&);
+	void printCredentials() { cout << username << " " << masterpass; }
 };
 #endif

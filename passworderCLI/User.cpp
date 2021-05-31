@@ -24,7 +24,7 @@ int User::changePassWithParam(string pass)
 	masterpass = pass;
 	return 0;
 }
-bool login() 
+bool User::login() 
 {
 	string input;
 	cout << "Enter username to login in: ";
@@ -137,12 +137,11 @@ bool User::changePass()
 
 }
 
-User& User::operator=(const User& rhs)
+void User::operator=(const User& rhs)
 {
 	this->username = rhs.username;
 	this->masterpass = rhs.masterpass;
 	this->logged_on = rhs.logged_on;
-	return *this;
 }
 
 User::User(string username, string password, bool loggen_on)
@@ -157,8 +156,8 @@ User::User()
 	masterpass = " ";
 	logged_on = 0;
 }
-
-User* User::register_user(User* users)
+//TO BE FIXED
+void User::register_user(User* users)
 {
 	++usersCount;
 	User* tmp = new User[usersCount];
@@ -173,9 +172,20 @@ User* User::register_user(User* users)
 	cin >> password;
 	User newUser(username, password, 0);
 	tmp[usersCount-1] = newUser;
-
-	return tmp;
+	delete[] users;
+	users = new User[usersCount];
+	for (size_t i = 0; i < usersCount; i++)
+	{
+		cout << "\nUser value: ";
+		users[i].printCredentials();
+		cout << "\ntmp value: ";
+		tmp[i].printCredentials();
+		*(users + i) = *(tmp + i);
+		cout << "\nAddress:" << users+i;
+		users[i].printCredentials();
+	}
 }
+//TO BE FIXED
 User* User::delete_user(User* users)
 {
 	string usrnm;
