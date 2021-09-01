@@ -2,44 +2,47 @@
 #define _WEBSITE_
 #include <string>
 #include "UsernamePassPair.h"
+//#include "funcs.h"
+/*name - abv
+* domain abv.bg
+* link - https://www.abv.bg
+*/
 using std::string;
 class Website
 {
-	string link, domain;
-	UsernamePassPair* registered_users;
-	int registeredUsersCount;
+	string link, domain, name;
+	vector<UsernamePassPair> registered_users;
 public:
-	string getLink()const { return link; }
-	string getDomain()const { return domain; }
-	void setDomain(string domain) { this->domain = domain; }
-	void setLink() { link += "https://www." + domain; }
-	Website() { domain = link = ""; registered_users = nullptr; registeredUsersCount = 0; }
-	Website(string domain) { setDomain(domain); setLink(); registeredUsersCount = 0; }
+	UsernamePassPair& getUPPRef(string);
+	UsernamePassPair* pointToUPP(string);
+	string getLink()const;
+	string getDomain()const;
+	string getName()const;
+	int getEntriesCount()const { return registered_users.size(); }
+	void setDomain(string);
+	void setLink();
+	void setName();
+	void setName(string);
+	Website();
+	Website(string, bool);
+	Website(string);
 
-	void add_user(string usrnm, string password) 
-	{
-		for (size_t i = 0; i < registeredUsersCount; i++)
-		{
-			if (registered_users[i].getUsername() == usrnm)
-			{
-				cerr << "User already exists.\nReturning.\n";
-				return;
-			}
-		}
-		++registeredUsersCount;
-		UsernamePassPair *tmp = new UsernamePassPair[registeredUsersCount];
-		for (size_t i = 0; i < registeredUsersCount; i++)
-		{
-			tmp[i] = registered_users[i];
-		}
-		tmp[registeredUsersCount] = UsernamePassPair(usrnm, password);
-		delete[] registered_users;
-		registered_users = new UsernamePassPair[registeredUsersCount];
-		for (size_t i = 0; i < registeredUsersCount; i++)
-		{
-			registered_users[i] = tmp[i];
-		}
-		delete[] tmp;
-	}
+	void add_user(string, string);
+	void add_user(UsernamePassPair*);
+	void remove_user(string);
+	UsernamePassPair* pointToUserOnWebsite(string);
+	void operator=(const Website&);
+	static Website* findWebsiteByName(string);
+	UsernamePassPair* findUsernamePassPairByName(string);
+	void printHistoryOnWebsiteForUser();
+	static void addWebsite(const Website&);
+	static void deleteWebsiteByName(string);
+	static void listWebsites();
+	static void listEmptyWebsites();
+	static void clearEmptyWebsites();
+	static void deleteEmptyWebsite();
+	bool is_website_empty()const { return registered_users.empty(); }
+	void deleteWebsite();
+	string convertToString()const;
 };
 #endif

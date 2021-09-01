@@ -1,148 +1,160 @@
 #include <iostream>
+#include <vector>
 #include "User.h"
-#include <fstream>
-#include "vector"
-#define printNewLine() outUsers.write("\n",1)
-int usersCount = 1;
-User *users = new User[1];
+#include "funcs.h"
+#include "globals.h"
+#include "Website.h"
+#include <sstream>
 using std::vector;
-vector<Website> websites;
 using namespace std;
 
-void printHelp()
-{
-	cout << "Password Manager CLI.\n This is a simple app to manage your passwords for any offline and/or online accounts.\n"
-		"pass -h / --help - prints this message"
-		"";
-}
+/*
+* STRINGSTREAM MEMO
+* 	ostringstream osstream;
+	int n;
+	while (cin >> n)
+	{
+		osstream << n;
+	}
+	string ARRAY = "5 10 -2";
+	stringstream sstream(ARRAY);
+	int ints[25];
+	int i = 0;
+	while (!sstream.eof())
+	{
+		sstream >> ints[i++];
+	}
+	bool checkpoint = true;
 
-void printAsciiTable()
-{
-	//33-126 are valid
-	char ch = 0;
-	for (size_t i = 0; i < 500; i++)
-	{
-		cout << i << " = "<< ch++ << endl;
-	}
-}
+*/
 
-int save()
-{
-	fstream outUsers("users.txt", ios::binary | ios::out | ios::out);
-	if (!outUsers)
-	{
-		cerr << "Could not open file\n";
-	}
-	if (usersCount > 999)
-	{
-		cerr << "Error userCount value is more than 999\n";
-		return 1;
-	}
-	char* usrCntStr = new char[4];
-	_itoa(usersCount, usrCntStr, 100);
-	outUsers.write(usrCntStr, 3);
-	printNewLine();
-	for (size_t i = 0; i < usersCount; i++)
-	{
-		outUsers.write(users[i].getUsername().c_str(), users[i].getUsername().size());
-		printNewLine();
-		outUsers.write(users[i].getPass().c_str(), users[i].getPass().size());
-		printNewLine();
-	}
-	return 0;
-}
-
-void listAllUsers()
-{
-	for (size_t i = 0; i < usersCount; i++)
-	{
-		cout << users[i].getUsername() << "\n";
-	}
-}
-
-void timeDemo()
-{
-	time_t now = time(0);
-	char tm[26];
-	ctime_s(tm, sizeof tm, &now);
-	cout << tm << "\n";
-}
+/*
+* PASS ENCRYPTION MEMO
+* 	//string pass = "dlg";
+	//string enc = encryptMasterPass(pass);
+	//string dec = decryptMasterPass(enc);
+	//for (char ch : pass)
+	//	cout << (int)ch - 48 << " ";
+	//cout << "\n";
+	//for (char ch : enc)
+	//	cout << (int)ch - 48 << " ";
+	//cout << "\n";
+	//for (char ch : dec)
+	//	cout << (int)ch - 48 << " ";
+	//cout << "\n";
+*/
 
 int main(int argc, char** argv)
 {
-	User masterUser("st", "ks", 0);
-	users[0] = masterUser;
-	users[0].printCredentials();
-	for (size_t i = 0; i < 5; i++)
-	{
-		cout << "\nAddress in main:" << users + i;
-		User::register_user(users);
-		cout << "\nAddress in main:" << users + i;
-		users[i].printCredentials();
-	}
-	save();
-	return 0;
-	/*master user bullshit i wrote, later i changed the  workaround
-	if (users[0].getUsername() == " ")
-	{
-		cout << "Main user is uninitizized\nLet's sign you up!\nEnter your username: ";
-		do
-		{
-			string firstUsername, firstPass, check;
-			cin >> firstUsername;
-			cout << "\nPassword: ";
-			cin >> firstPass;
-			cout << "\nConfirm password: ";
-			cin >> check;
-			if (check==firstPass)
-			{
-				User firstUser(firstUsername, firstPass);
-				users[0] = firstUser;
-				break;
-			}
-		} while (1);
-		cout << "Master user initialized!\n";
-	}
-	*/
-	string username;
-	cout << argv[1] << endl;
+	auto var = 5;
+	bool boolean = var ? true : false;
+	//int a = 5;
+	//char b = (int)a;
+	//int c = (char)b;
+	//cout << a << " " << b << " " << c << " ";
+	read();
+	//Password pass("trappingguy", 0);
+	//string str1 = pass.getEncrypted();
+	//string str2 = Password::decryptPass(str1);
+	//for login through terminal option --login/-l
+	string username, password;
 	if (argv[1] == "-h" || argv[1] == "--help")
 	{
 		printHelp();
 	}
-	if (argv[1] == "--user" || argv[1] == "-u")
+	if (argv[1] == "--login" || argv[1] == "-l")
 	{
 		username = argv[2];
+		password = argv[3];
 	}
-	cout << "Password Manager is running enter integers to execute commands\n"
-		"0 - exit\n"
-		"1 - login\n"
-		"2 - logout\n"
-		"3 - register\n"
-		"4 - delete my profile and erase my data\n"
-		"5 - list registered usernames"
-		"6 - list websites"
-		"Log in to use Password Manager's commands\n";
+	if (argv[1] == "--pass" || argv[1] == "-p")
+	{
+		for (size_t i = 0; i < websitesCount; i++)
+		{
+			for (size_t j = 0; j < websites[i].getEntriesCount(); j++)
+			{
+				//if (websites[i].addWebsite )
+				//{
+				//
+				//}
+			}
+		}
+	}
+	printIntCommands();
 	while (1)
 	{
+		/*
+		cout << "Password Manager is running enter integers to execute commands\n"
+			"Log in to use Password Manager's commands\n"
+			"-1 - print commands again\n"
+			"0 - exit\n"
+			"1 - login\n"
+			"2 - logout\n"
+			"3 - register\n"
+			"4 - delete my profile and erase my data\n"
+			"5 - list usernames of registered users\n"
+			"6 - list websites\n"
+			"7 - remove an empty website\n"
+			"8 - clear empty websites\n"
+			;
+		*/
 		int intinput;
 		cin >> intinput;
 		switch (intinput)
 		{
-		case 0: return 0;
-		case 1: //User::login();
-		case 2: //User::logout();
-		//case 3: users = User::register_user(users);
-		case 5: listAllUsers();
+		case -1:printIntCommands(); break;
+		case 0:save(); return 0;
+		case 1:getLogin(); break;
+		case 2: logout(); break;
+		case 3: User::register_user(users); break;
+		case 5: listAllUsers(); break;
+		case 6: Website::listWebsites(); break;
+		
 		default:
 			break;
 		}
-
+		while (User::check_logon())
+		{
+			/*cout << "\nLogged in. Welcome, " << findLoggedInUser().getUsername() <<
+				"\nUser menu:"
+				"\n0 - logout"
+				"\n1 - list websites you are registered on"
+				"\n2 - add password entry"
+				"\n3 - delete password entry"
+				"\n4 - delete my profile and erase my data"
+				"\n5 - print password history on a website"
+				"\n6 - list all actual password entries"
+				"\n"
+				;
+			*/
+			printUserMenu();
+			User& logged_in_usr = findLoggedInUser();
+			int input;
+			string websiteName;
+			cin >> input;
+			switch (input)
+			{
+			case 0: logout(); break;
+			case 1: logged_in_usr.printWebsites(); break;
+			case 2: addPasswordEntry(); break;
+			case 3: deletePasswordEntry(); break;
+			case 4: logged_in_usr.delete_my_account(); printIntCommands(); break;
+			case 5: 
+					logged_in_usr.printWebsites();
+					cout << "\nEnter website name to see history for: ";
+					cin >> websiteName;
+					logged_in_usr.printPasswordHistoryForWebsite(&logged_in_usr, websiteName);
+					break;
+			case 6: logged_in_usr.printActualPasswords(); break;
+			default:
+				break;
+			}
+			if (input == 0)
+			{
+				printIntCommands();
+				break;
+			}
+		}
 	}
-	//if (argv[1] == )
-	//{
-	//
-	//}
-	//cout << "Welcome to Password Manager!\nType login to login.";
 	return 0;
 }
