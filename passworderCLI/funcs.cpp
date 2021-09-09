@@ -599,14 +599,44 @@ Website& createNewWebsiteWithParam(string domain)
 
 User& findLoggedInUser()
 {
-	for (size_t i = 0; i < usersCount; i++)
+	try
 	{
-		if (users[i].get_logged_in_state())
+		for (size_t i = 0; i < usersCount; i++)
 		{
-			return users[i];
+			if (users[i].get_logged_in_state())
+			{
+				return users[i];
+			}
+		}
+		throw user_not_found_exception("no logged in user found.");
+
+	}
+	catch (user_not_found_exception& excObj)
+	{
+		cout << excObj.what();
+		cout << "\nYou can choose to register or retry login. (r/l)";
+		while (true)
+		{
+			char input;
+			cin >> input;
+			if (input == 'r')
+			{
+				User::register_user(users);
+				cout << "\nNow you have to login.\n";
+				getLogin();
+				return findLoggedInUser();
+			}
+			else if (input == 'l')
+			{
+				getLogin();
+				findLoggedInUser();
+			}
+			else
+			{
+				cout << "\nCould not read input try again. (register(r)/login(l))";
+			}
 		}
 	}
-	throw user_not_found_exception("no logged in user found.");
 }
 
 //usermenu functions
@@ -793,16 +823,17 @@ void deletePasswordEntry()
 		{
 			cout << "\nAll passwords were deleted -> stopping and deleting user entry.";
 			website.remove_user(userOnWebsite->getOwner());
+			findLoggedInUser().removeWebsiteFromRegistered(website.getName());
 			break;
 		}
 	}
-	for (size_t i = 0; i < websitesCount; i++)
-	{
-		if (websites[i].getName() == websiteName)
-		{
-			websites[i] = website;
-			usr.removeWebsiteFromRegistered(websiteName);
-			break;
-		}
-	}
+	//for (size_t i = 0; i < websitesCount; i++)
+	//{
+	//	if (websites[i].getName() == websiteName)
+	//	{
+	//		websites[i] = website;
+	//		usr.removeWebsiteFromRegistered(websiteName);
+	//		break;
+	//	}
+	//}
 }

@@ -212,7 +212,7 @@ void User::register_user(User* users)
 	{
 		users[usersCount - 1] = createNewUser();
 	}
-	cout << "\nSuccessfuly registered!";
+	cout << "Successfuly registered!\n";
 }
 void User::read_user(string username, string password, vector<string>& websiteNames)
 {
