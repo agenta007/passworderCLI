@@ -51,9 +51,13 @@ void UsernamePassPair::deletePasswordAt(int index)
 }
 void UsernamePassPair::printUserPassPair() { std::cout << "Username: " << username; passwords[passwords.size() - 1].printPass(); }
 void UsernamePassPair::listPasswords() { for (Password pass : passwords) { pass.printPass(); } }
-void UsernamePassPair::printActualPassword()
+void UsernamePassPair::printActualPassword()const
 {
 	passwords.back().printPass();
+}
+string UsernamePassPair::getPlainPassword()const
+{
+	return passwords[passwords.size() - 1].getPlaintext();
 }
 void UsernamePassPair::UPP_printHistory()
 {
@@ -64,6 +68,7 @@ void UsernamePassPair::UPP_printHistory()
 }
 string UsernamePassPair::getUsername()const { return username; }
 string UsernamePassPair::getOwner()const { return owner; }
+int UsernamePassPair::getPassCount()const { return passwords.size(); }
 void UsernamePassPair::operator=(const UsernamePassPair& rhs)
 {
 	this->username = rhs.username;
@@ -75,6 +80,11 @@ void UsernamePassPair::operator=(const UsernamePassPair& rhs)
 			this->passwords.push_back(rhs.passwords[i]);
 		}
 	}
+}
+
+Password& UsernamePassPair::operator[](int index)
+{
+	return passwords[index];
 }
 
 void UsernamePassPair::mergeUPPs(const UsernamePassPair& obj)

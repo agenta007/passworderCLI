@@ -17,6 +17,10 @@ UsernamePassPair& Website::getUPPRef(string username)
 		}
 	}
 }
+vector<UsernamePassPair>& Website::getReggedUsers()
+{
+	return registered_users;
+}
 UsernamePassPair* Website::pointToUPP(string username)
 {
 	for (size_t i = 0; i < registered_users.size(); i++)
