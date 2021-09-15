@@ -42,6 +42,7 @@ public:
 	void readRegisteredToWebsiteNames(vector<string>&);
 	bool checkUserRegistered(string);
 	void removeWebsiteFromRegistered(string);
+	void clearUser();
 	bool is_default();
 };
 #endif

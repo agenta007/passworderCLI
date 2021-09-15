@@ -218,3 +218,8 @@ void Password::setLoadStr()
 	}
 	loadStr = str;
 }
+
+void Password::decrIdx()
+{
+	--index;
+}

@@ -9,14 +9,19 @@ void printHelp()
 {
 	cout << "Password Manager CLI.\n This is a simple commandline tool to manage your passwords for any offline and/or online accounts.\n"
 		"passworder -h, --help - prints this message\n"
-		"Example usage: passworder --user USERNAME\n"
+		"CL options:\n" 
+		"passworder --login/-l USERNAME MASTERPASS\n"
+		"passworder --register/-r USERNAME MASTERPASS\n"
+		"passworder --pass/-p LOGIN_ON_WEBSITE MASTERPASS\n"
+		"passworder --add/-a MASTERLOGIN MASTERPASS LOGIN PASSWORD"
+		"passworder --import/-i /path/to/username_password_website.txt(firefox_decrypt format)"
 		"";
 }
 
 void printIntCommands()
 {
-	cout << "Password Manager is running enter integers to execute commands\n"
-		"Log in to use Password Manager's commands\n"
+	cout << "\npassworderCLI\n"
+		"Log in to use Password Manager\n"
 		"-1 - print commands again\n"
 		"0 - exit\n"
 		"1 - login\n"
@@ -24,8 +29,10 @@ void printIntCommands()
 		"3 - register\n"
 		"5 - list usernames of registered users\n"
 		"6 - list websites\n"
-		"7 - remove an empty website\n"
-		"8 - clear empty websites\n"
+		//"7 - remove an empty website\n"
+		"7 - clear empty websites\n"
+		"8 - import credentials in format Website/Login/Username on separate lines\n"
+		""
 		;
 }
 
@@ -238,6 +245,8 @@ void read()
 
 				Website::addWebsite(website);
 				website = Website();
+				readPasses.clear();
+				login = owner = "";
 			}
 			if (got_user == false && first_user == true)
 			{
@@ -348,9 +357,9 @@ void read()
 
 void listAllUsers()
 {
-	if (usersCount==0)
+	if (usersCount == 0)
 	{
-		cout << "\nThey aren't any registered users yet. Option 3 to register or passworder --register USERNAME PASSWORD";
+		cout << "\nThey aren't any registered users yet. Option 3 to register or passworder --register USERNAME PASSWORD\n";
 	}
 	for (size_t i = 0; i < usersCount; i++)
 	{
@@ -661,6 +670,7 @@ Website& getWebsiteRef(string name)
 		}
 	}
 }
+
 void addPasswordEntry()
 {
 	User& usr = findLoggedInUser();
@@ -744,6 +754,91 @@ void addPasswordEntry()
 	return;
 }
 
+void addPasswordEntry(string link, string login, string password)
+{
+	User& usr = findLoggedInUser();
+	string websiteDomain, websiteName;
+	int countSlashes = 0;
+	int countDots = 0;
+	for (size_t i = 0; i < link.size(); i++)
+	{
+		if (link[i] == '.')
+		{
+			++countDots;
+		}
+	}
+	int writeFlag = false;
+
+	int metDots = 0;
+	for (size_t i = 0; i < link.size(); i++)
+	{
+		if (writeFlag)
+		{
+			if (countDots == 1)
+			{
+				if (metDots == 0 || metDots == 1)
+				{
+					websiteDomain += link[i];
+					websiteName += link[i];
+				}
+				else
+				{
+					websiteDomain += link[i];
+				}
+			}
+			else if (countDots == 2)
+			{
+				if (metDots == 0)
+				{
+					websiteDomain += link[i];
+					websiteName += link[i];
+				}
+				else
+				{
+					websiteDomain += link[i];
+				}
+			}
+
+		}
+		else if (countSlashes == 2)
+		{
+			writeFlag = true;
+			continue;
+		}
+		else if (link[i] == '/')
+		{
+			++countSlashes;
+		}
+
+	}
+
+	for (size_t i = 0; i < websiteDomain.size(); i++)
+	{
+		if (websiteDomain[i] == '.')
+		{
+			break;
+		}
+		else
+		{
+			websiteName += websiteDomain[i];
+		}
+	}
+	Website* website;
+
+	if (checkWebsiteAdded(websiteName))
+	{
+		website = &getWebsiteRef(websiteName);
+	}
+	else
+	{
+		Website* added_website = &createNewWebsiteWithParam(websiteDomain);
+		added_website->add_user(login, password);
+		usr.registerWebsiteName(added_website->getName());
+		return;
+	}
+
+}
+
 void deletePasswordEntry()
 {
 	User& usr = findLoggedInUser();
@@ -751,10 +846,11 @@ void deletePasswordEntry()
 	usr.printWebsites();
 	cout << "\nEnter website name: ";
 	cin >> websiteName;
-	Website website;
+	Website* websitePtr;
+	int* indexesToRm = nullptr;
 	if (checkWebsiteAdded(websiteName))
 	{
-		website = getWebsiteRef(websiteName);
+		websitePtr = &getWebsiteRef(websiteName);
 	}
 	else
 	{
@@ -771,15 +867,21 @@ void deletePasswordEntry()
 			deletePasswordEntry();
 		}
 	}
-	UsernamePassPair* userOnWebsite = website.pointToUserOnWebsite(usr.getUsername());
+	UsernamePassPair* userOnWebsite = (*websitePtr).pointToUserOnWebsite(usr.getUsername());
 	userOnWebsite->listPasswords();
 	string input;
-	cout << "\nEnter comma-separated index/indexes to remove (enter stop to exit) : ";
+	cout << "\nEnter comma-separated index/indexes to remove or all to delete whole password history (enter stop/exit to exit) : ";
 	while (!userOnWebsite->is_empty())
 	{
 		cin >> input;
-		if (input=="stop")
+		if (input == "stop" || input == "exit")
 		{
+			break;
+		}
+		else if (input == "all")
+		{
+			userOnWebsite->erasePassHistory();
+			cout << "\nDeleted all.\n";
 			break;
 		}
 
@@ -791,12 +893,12 @@ void deletePasswordEntry()
 				countOfCommas++;
 			}
 		}
-		int* indexesToRm = new int[countOfCommas+1];
+		indexesToRm = new int[countOfCommas + 1];
 		int j = 0;
 		string partNum;
 		for (size_t i = 0; i <= input.size(); i++)
 		{
-			if (i==input.size())
+			if (i == input.size())
 			{
 				indexesToRm[j++] = stoi(partNum);
 				partNum = "";
@@ -812,28 +914,17 @@ void deletePasswordEntry()
 			}
 		}
 
-		j = 0;
-		for (int i = 0; i < countOfCommas+1; ++i)
-		{
-			userOnWebsite->deletePasswordAt(indexesToRm[j++]);
-		}
-		delete[] indexesToRm;
+		userOnWebsite->deletePasswordAt(indexesToRm, countOfCommas+1);
 
-		if (userOnWebsite->is_empty())
-		{
-			cout << "\nAll passwords were deleted -> stopping and deleting user entry.";
-			website.remove_user(userOnWebsite->getOwner());
-			findLoggedInUser().removeWebsiteFromRegistered(website.getName());
-			break;
-		}
+
 	}
-	//for (size_t i = 0; i < websitesCount; i++)
-	//{
-	//	if (websites[i].getName() == websiteName)
-	//	{
-	//		websites[i] = website;
-	//		usr.removeWebsiteFromRegistered(websiteName);
-	//		break;
-	//	}
-	//}
+	delete[] indexesToRm;
+
+	if (userOnWebsite->is_empty())
+	{
+		cout << "\nAll passwords were deleted -> stopping and deleting user entry.";
+		(*websitePtr).remove_user(userOnWebsite->getOwner());
+		findLoggedInUser().removeWebsiteFromRegistered((*websitePtr).getName());
+	}
+
 }

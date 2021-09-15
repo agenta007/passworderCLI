@@ -10,6 +10,17 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+	/*
+	cout << "Password Manager CLI.\n This is a simple commandline tool to manage your passwords for any offline and/or online accounts.\n"
+		"passworder -h, --help - prints this message\n"
+		"CL options:\n"
+		"passworder --login/-l USERNAME MASTERPASS\n"
+		"passworder --register/-r USERNAME MASTERPASS\n"
+		"passworder --pass/-p LOGIN_ON_WEBSITE MASTERPASS\n"
+		"passworder --add/-a MASTERLOGIN MASTERPASS LOGIN PASSWORD"
+		"passworder --import/-i /path/to/username_password_website.txt(firefox_decrypt format)"
+		"";
+	*/
 	bool loggedInThroghTerminal = false;
 	read();
 	string* args = new string[argc];
@@ -24,7 +35,7 @@ int main(int argc, char** argv)
 		argument = "";
 	}
 	User emptyUsr = User();
-	User& logged_in_usr = emptyUsr;
+	User* logged_in_usr = nullptr;
 	string username, password;
 	if (args[1] == "-h" || args[1] == "--help")
 	{
@@ -42,7 +53,7 @@ int main(int argc, char** argv)
 		username = argv[2];
 		password = argv[3];
 
-		logged_in_usr = getUserRefByCredentials(username, password);
+		logged_in_usr = &getUserRefByCredentials(username, password);
 
 		loggedInThroghTerminal = true;
 	}
@@ -88,47 +99,55 @@ int main(int argc, char** argv)
 	while (1)
 	{
 		/*
-		cout << "Password Manager is running enter integers to execute commands\n"
-			"Log in to use Password Manager's commands\n"
-			"-1 - print commands again\n"
-			"0 - exit\n"
-			"1 - login\n"
-			"2 - logout\n"
-			"3 - register\n"
-			"4 - delete my profile and erase my data\n"
-			"5 - list usernames of registered users\n"
-			"6 - list websites\n"
-			"7 - remove an empty website\n"
-			"8 - clear empty websites\n"
-			;
+	cout << "\npassworderCLI\n"
+		"Log in to use Password Manager\n"
+		"-1 - print commands again\n"
+		"0 - exit\n"
+		"1 - login\n"
+		"2 - logout\n"
+		"3 - register\n"
+		"5 - list usernames of registered users\n"
+		"6 - list websites\n"
+		//"7 - remove an empty website\n"
+		"7 - clear empty websites\n"
+		"8 - import credentials in format Website/Login/Username on separate lines\n"
+		""
+		;
 		*/
 		
-		int intinput;
+		int intinput = -2;
 		if (!loggedInThroghTerminal)
 		{
 			printIntCommands();
 			cin >> intinput;
 		}
-		else
+		else if(!User::check_logon())
 		{
-			intinput = -2;
+			printIntCommands();
+			cin >> intinput;
 		}
 
 		switch (intinput)
 		{
 		case -1:printIntCommands(); break;
 		case 0:save(); return 0;
-		case 1:getLogin(); logged_in_usr = findLoggedInUser(); break;
+		case 1:getLogin(); logged_in_usr = &findLoggedInUser(); break;
 		case 2: logout(); break;
 		case 3: User::register_user(users); break;
 		case 5: listAllUsers(); break;
 		case 6: Website::listWebsites(); break;
+		case 7: Website::clearEmptyWebsites(); break;
 		
 		default:
 			break;
 		}
 		while (User::check_logon())
 		{
+			if (logged_in_usr == nullptr)
+			{
+				cout << "\nError : Trying to do user operations, but  logged_in_usr is nullptr.\n";
+				break;
+			}
 			/*cout << "\nLogged in. Welcome, " << findLoggedInUser().getUsername() <<
 				"\nUser menu:"
 				"\n0 - logout"
@@ -148,26 +167,26 @@ int main(int argc, char** argv)
 			cin >> input;
 			switch (input)
 			{
-			case 0: logout(); logged_in_usr = emptyUsr; loggedInThroghTerminal = false; break;
-			case 1: logged_in_usr.printWebsites(); break;
+			case 0: logout(); emptyUsr.clearUser(); loggedInThroghTerminal = false; break;
+			case 1: (*logged_in_usr).printWebsites(); break;
 			case 2: addPasswordEntry(); break;
 			case 3: deletePasswordEntry(); break;
-			case 4: logged_in_usr.delete_my_account(); printIntCommands(); break;
+			case 4: (*logged_in_usr).delete_my_account(); break;
 			case 5: 
-					logged_in_usr.printWebsites();
+					(*logged_in_usr).printWebsites();
 					cout << "\nEnter website name to see history for: ";
 					cin >> websiteName;
-					logged_in_usr.printPasswordHistoryForWebsite(&logged_in_usr, websiteName);
+					(*logged_in_usr).printPasswordHistoryForWebsite(logged_in_usr, websiteName);
 					break;
-			case 6: logged_in_usr.printActualPasswords(); break;
+			case 6: (*logged_in_usr).printActualPasswords(); break;
 			default:
 				break;
 			}
-			if (input == 0)
-			{
-				printIntCommands();
-				break;
-			}
+			//if (input == 0)
+			//{
+			//	printIntCommands();
+			//	break;
+			//}
 		}
 	}
 	delete[] args;

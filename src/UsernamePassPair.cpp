@@ -45,9 +45,27 @@ void UsernamePassPair::deletePasswordAt(int index)
 		if (passwords[i].getIndex() == index)
 		{
 			passwords.erase(passwords.begin()+i);
+			for (size_t j = i; j < passwords.size(); j++)
+			{
+				passwords[j].decrIdx();
+			}
 		}
 	}
 	
+}
+void UsernamePassPair::deletePasswordAt(int* indexes, int sz)
+{
+	for (size_t i = 0; i < sz; i++)
+	{
+		for (size_t j = 0; j < passwords.size(); j++)
+		{
+			if (passwords[j].getIndex() == indexes[i])
+			{
+				passwords.erase(passwords.begin()+j);
+			}
+		}
+	}
+	this->fixIndexes();
 }
 void UsernamePassPair::printUserPassPair() { std::cout << "Username: " << username; passwords[passwords.size() - 1].printPass(); }
 void UsernamePassPair::listPasswords() { for (Password pass : passwords) { pass.printPass(); } }
@@ -126,4 +144,17 @@ string UsernamePassPair::convertToString()const
 bool UsernamePassPair::is_empty()const
 {
 	return passwords.empty();
+}
+
+void UsernamePassPair::erasePassHistory() 
+{
+	passwords.clear();
+}
+
+void UsernamePassPair::fixIndexes()
+{
+	for (size_t i = 0; i < passwords.size(); i++)
+	{
+		passwords[i].setIndex(i);
+	}
 }

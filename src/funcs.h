@@ -25,6 +25,7 @@ Website& createNewWebsiteWithParam(string domain);
 User& findLoggedInUser();
 //usermenu functions
 void addPasswordEntry();
+void addPasswordEntry(string, string, string);
 void deletePasswordEntry();
 bool checkWebsiteAdded(string);
 Website& getWebsiteRef(string);

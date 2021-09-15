@@ -156,10 +156,7 @@ void User::operator=(const User& rhs)
 	this->logged_on = rhs.logged_on;
 	for (size_t i = 0; i < rhs.registererd_to_websiteNames.size(); i++)
 	{
-		for (size_t j = 0; j < rhs.registererd_to_websiteNames.size(); j++)
-		{
-			registererd_to_websiteNames.push_back(rhs.registererd_to_websiteNames[j]);
-		}
+		this->registererd_to_websiteNames.push_back(rhs.registererd_to_websiteNames[i]);
 	}
 }
 
@@ -171,9 +168,8 @@ User::User(string username, string password, bool loggen_on)
 }
 User::User()
 {
-	username = " ";
-	masterpass = " ";
-	logged_on = 0;
+	username = masterpass = "";
+	logged_on = false;
 }
 
 void printUsers()
@@ -302,6 +298,11 @@ void User::delete_my_account()
 }
 void User::printWebsites()const
 {
+	if (registererd_to_websiteNames.size()==0)
+	{
+		cout << "\nYou haven't imported credentials for any website yet!\n";
+		return;
+	}
 	for (size_t i = 0; i < registererd_to_websiteNames.size(); i++)
 	{
 		cout << "\n" << registererd_to_websiteNames[i];
@@ -343,6 +344,11 @@ void User::printActualPasswords()
 void User::printPasswordHistoryForWebsite(User* usr, string name)
 {
 	Website* websiteToPrintHistory = Website::findWebsiteByName(name);
+	if (websiteToPrintHistory==nullptr)
+	{
+		cout << "\nWebsite is not found.\n";
+		return;
+	}
 	websiteToPrintHistory->printHistoryOnWebsiteForUser();
 }
 void User::readRegisteredToWebsiteNames(vector<string>& registeredToWebsiteNames)
@@ -375,6 +381,12 @@ void User::removeWebsiteFromRegistered(string name)
 			return;
 		}
 	}
+}
+
+void User::clearUser()
+{
+	username = masterpass = "";
+	logged_on = false;
 }
 
 bool User::is_default()

@@ -17,6 +17,7 @@ public:
 	string getPlaintext()const;
 	string getEncrypted()const;
 	int getIndex()const { return index; }
+	int setIndex(int setVal) { index = setVal;  return 0; }
 	bool setPlainText(string);
 	bool setSecLevel();
 	string getSecLevel()const;
@@ -26,6 +27,7 @@ public:
 	static string decryptPass(string&);
 	static string encryptPass(string&);
 	void setLoadStr();
+	void decrIdx();
 };
 class illegalCharactersException :public std::exception
 {

@@ -18,7 +18,9 @@ public:
 	static UsernamePassPair createNewUsernamePassPair();
 	static UsernamePassPair createNewUsernamePassPairWithParams(string usr, string pass);
 	void updatePassword(string password);
+	//to delete single or multiple indexes
 	void deletePasswordAt(int);
+	void deletePasswordAt(int*, int sz);
 	void printUserPassPair();
 	void listPasswords();
 	void printActualPassword()const;
@@ -32,5 +34,7 @@ public:
 	Password& operator[](int);
 	string convertToString()const;
 	bool is_empty()const;
+	void erasePassHistory();
+	void fixIndexes();
 }; 
 #endif // !_usernamepasspair_
