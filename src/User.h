@@ -17,6 +17,7 @@ public:
 	User();
 	User(string, string, bool logged_on = false);
 	bool login(bool are_credentials_typed);
+	static bool tryLogin(string, string);
 	void logout();
 	void logon();
 	string getUsername()const;

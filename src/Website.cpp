@@ -37,23 +37,37 @@ string Website::getDomain()const { return domain; }
 string Website::getName()const { return name; }
 void Website::setDomain(string domain) { this->domain = domain; }
 void Website::setLink()
-{ 
+{
 	link += "https://www." + domain;
 }
 void Website::setName()
 {
-	bool flagToCopy = false;
-	for (auto& chRef : link)
+	int countDots = 0;
+	for (size_t i = 0; i < domain.size(); i++)
 	{
-		if (chRef == '.')
+		if (domain[i] == '.')
 		{
-			flagToCopy = !flagToCopy;
-			continue;
+			++countDots;
 		}
-		if (flagToCopy)
+	}
+	for (size_t i = 0; i < domain.size(); i++)
+	{
+		if (domain[i] == '.')
 		{
-			name += chRef;
+			if (countDots==1)
+				return;
+			bool foundDot = false;
+			for (size_t j = i+1; j < domain.size(); j++)
+			{
+				if (domain[j] == '.')
+				{
+					foundDot = true;
+				}
+			}
+			if (!foundDot)
+				return;
 		}
+		name += domain[i];
 	}
 }
 void Website::setName(string name)
@@ -74,7 +88,42 @@ Website::Website(string name, bool domain)
 	}
 	setLink();
 }
-Website::Website(string domain) {
+Website::Website(string domain)
+{
+	if (domain[0] == 'h')
+	{
+		string domainCut;
+		int countSlashes = 0;
+		bool writeFlag = false;
+		for (size_t i = 0; i < domain.size(); i++)
+		{
+			if (writeFlag)
+			{
+				domainCut += domain[i];
+			}
+			else if (domain[i] == '/')
+			{
+				countSlashes++;
+			}
+			else if (countSlashes == 2)
+			{
+				if (domain[i] == 'w' && domain[i + 1] == 'w')
+				{
+					i += 3;
+					writeFlag = true;
+					continue;
+				}
+				writeFlag = true;
+				domainCut += domain[i];
+				continue;
+			}
+		}
+		setDomain(domainCut);
+		setLink();
+		setName();
+		return;
+
+	}
 	setDomain(domain);
 	setLink();
 	setName();
@@ -102,7 +151,7 @@ void Website::add_user(UsernamePassPair* entryToAdd)
 	{
 		if (registered_users[i].getOwner() == entryToAdd->getOwner())
 		{
-			cout << "User already exists\n";
+			//cout << "User already exists\n";
 			//registered_users[i].mergeUPPs(*entryToAdd);
 			return;
 		}
@@ -117,7 +166,7 @@ void Website::remove_user(string name)
 	{
 		if (registered_users[i].getOwner() == name)
 		{
-			registered_users.erase(registered_users.begin()+i);
+			registered_users.erase(registered_users.begin() + i);
 			return;
 		}
 	}
@@ -179,7 +228,7 @@ void Website::addWebsite(const Website& obj)
 	{
 		websitesCap *= 2;
 		Website* tmp = new Website[websitesCount];
-		for (size_t i = 0; i < websitesCount-1; i++)
+		for (size_t i = 0; i < websitesCount - 1; i++)
 		{
 			tmp[i] = websites[i];
 		}
@@ -194,7 +243,7 @@ void Website::addWebsite(const Website& obj)
 	}
 	else
 	{
-		websites[websitesCount-1] = obj;
+		websites[websitesCount - 1] = obj;
 	}
 }
 void Website::deleteWebsiteByName(string name)
@@ -202,7 +251,7 @@ void Website::deleteWebsiteByName(string name)
 	--websitesCount;
 	Website* tmp = new Website[websitesCount];
 	int j = 0;
-	for (size_t i = 0; i < websitesCount+1; i++)
+	for (size_t i = 0; i < websitesCount + 1; i++)
 	{
 		if (websites[i].getName() == name)
 		{
@@ -250,7 +299,7 @@ void Website::clearEmptyWebsites()
 	}
 }
 
-void Website::deleteEmptyWebsite() 
+void Website::deleteEmptyWebsite()
 {
 	Website::listEmptyWebsites();
 	cout << "\nEnter name to delete website: ";

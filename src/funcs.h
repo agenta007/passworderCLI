@@ -8,6 +8,7 @@ int save();
 string decryptMasterPass(string);
 string encryptMasterPass(string);
 void read();
+void import(string&, string&);
 void listAllUsers();
 string timeConvert(time_t);
 string ch_arr_to_string(char*, int);
@@ -30,4 +31,5 @@ void deletePasswordEntry();
 bool checkWebsiteAdded(string);
 Website& getWebsiteRef(string);
 void readCredential(string&, string&);
+void listPasswords();
 #endif // !_funcs_

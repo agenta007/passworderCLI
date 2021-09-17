@@ -24,6 +24,7 @@ public:
 	void printUserPassPair();
 	void listPasswords();
 	void printActualPassword()const;
+	string getActualPassPlainText()const;
 	string getPlainPassword()const;
 	void UPP_printHistory();
 	void mergeUPPs(const UsernamePassPair&);

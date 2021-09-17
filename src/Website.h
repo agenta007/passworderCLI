@@ -26,6 +26,7 @@ public:
 	void setName(string);
 	Website();
 	Website(string, bool);
+	//single string may be domain or link
 	Website(string);
 
 	void add_user(string, string);

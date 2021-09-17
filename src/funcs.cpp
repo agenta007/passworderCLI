@@ -14,7 +14,7 @@ void printHelp()
 		"passworder --register/-r USERNAME MASTERPASS\n"
 		"passworder --pass/-p LOGIN_ON_WEBSITE MASTERPASS\n"
 		"passworder --add/-a MASTERLOGIN MASTERPASS LOGIN PASSWORD"
-		"passworder --import/-i /path/to/username_password_website.txt(firefox_decrypt format)"
+		"passworder --import/-i /path/to/username_password_website.txt(firefox_decrypt format) MASTERLOGIN MASTERPASS"
 		"";
 }
 
@@ -47,7 +47,7 @@ void printUserMenu()
 		"\n4 - delete my profile and erase my data"
 		"\n5 - print password history on a website"
 		"\n6 - list all actual password entries"
-
+		"\n7 - list all website | username | password"
 		"\n"
 		;
 }
@@ -353,6 +353,95 @@ void read()
 	UsernamePassPair* user_ptr = &user_to_add;
 	website.add_user(user_ptr);
 	Website::addWebsite(website);
+}
+
+void import(string& loc, string& masterusername)
+{
+	int countOfImports = 0;
+	ifstream file(loc);
+	string line, link, username, password;
+	if (!file.is_open())
+	{
+		cout << " Could not open import file.\n";
+		return;
+	}
+	bool writeFlag;
+	while (std::getline(file, line))
+	{
+		if (line[0] == 'W')
+		{
+			writeFlag = false;
+			for (size_t i = 0; i < line.size(); i++)
+			{
+				if (writeFlag)
+				{
+					link += line[i];
+				}
+				else if (line[i] == 'h')
+				{
+					writeFlag = true;
+					link += line[i];
+					continue;
+				}
+			}
+			writeFlag = false;
+		}
+		else if (line[0] == 'U')
+		{
+			writeFlag = false;
+			for (size_t i = 0; i < line.size(); i++)
+			{
+				if (writeFlag)
+				{
+					username += line[i];
+				}
+				else if (line[i] == '\'')
+				{
+					writeFlag = true;
+					continue;
+				}
+			}
+			username.erase(username.end() - 1);
+		}
+		else if (line[0] == 'P')
+		{
+			writeFlag = false;
+			for (size_t i = 0; i < line.size(); i++)
+			{
+				if (writeFlag)
+				{
+					password += line[i];
+				}
+				else if (line[i] == '\'')
+				{
+					writeFlag = true;
+					continue;
+				}
+			}
+			password.erase(password.end()-1);
+		}
+		else
+		{
+			Website website(link);
+			string name = website.getName();
+			Website* websitePtr = nullptr;
+			if (checkWebsiteAdded(name))
+			{
+				websitePtr = &getWebsiteRef(name);
+				(*websitePtr).add_user(username, password);
+				findLoggedInUser().registerWebsiteName(name);
+			}
+			else
+			{
+				website.add_user(username, password);
+				Website::addWebsite(website);
+				findLoggedInUser().registerWebsiteName(name);
+			}
+			username = password = link = "";
+			countOfImports++;
+		}
+	}
+	cout << "\nImported " << countOfImports << " logins to profile " << masterusername << "\n";
 }
 
 void listAllUsers()
@@ -927,4 +1016,26 @@ void deletePasswordEntry()
 		findLoggedInUser().removeWebsiteFromRegistered((*websitePtr).getName());
 	}
 
+}
+
+void listPasswords()
+{
+	User* usr = &findLoggedInUser();
+	//for every registeredToWebsite find website, for every UPP in website find UPP, get plaintext of upp.back
+	for (size_t i = 0; i < (*usr).getRegisteredToWebsiteNamesCount(); i++)
+	{
+		for (int j = 0; j < websitesCount; j++)
+		{
+			//search websites to match logged in username
+			if (websites[j].getName() == (*usr).getRegisteredToWebsiteNameWithIndex(i))
+			{
+				UsernamePassPair* upp_ptr = nullptr;
+				upp_ptr = websites[j].pointToUPP((*usr).getUsername());
+				string username = (*upp_ptr).getUsername();
+				string password = (*upp_ptr).getActualPassPlainText();
+
+				cout << (*usr).getRegisteredToWebsiteNameWithIndex(i) << " | " << username << " | " << password << '\n';
+			}
+		}
+	}
 }

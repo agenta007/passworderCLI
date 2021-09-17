@@ -80,6 +80,19 @@ bool User::login(bool are_credentials_typed)
 	}
 	return false;
 }
+
+bool User::tryLogin(string username, string pass)
+{
+	for (size_t i = 0; i < usersCount; i++)
+	{
+		if (users[i].getUsername() == username && users[i].getPass() == pass)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void User::logon()
 {
 	logged_on = true;

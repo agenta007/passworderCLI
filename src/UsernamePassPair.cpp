@@ -73,6 +73,10 @@ void UsernamePassPair::printActualPassword()const
 {
 	passwords.back().printPass();
 }
+string UsernamePassPair::getActualPassPlainText()const
+{
+	return passwords.back().getPlaintext();
+}
 string UsernamePassPair::getPlainPassword()const
 {
 	return passwords[passwords.size() - 1].getPlaintext();

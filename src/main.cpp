@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 	string username, password;
 	if (args[1] == "-h" || args[1] == "--help")
 	{
-		if (args->size() != 2)
+		if (argc != 2)
 			cout << "\n-h/--help is incompatible with  any other parameters\n";
 		printHelp();
 	}
@@ -67,9 +67,8 @@ int main(int argc, char** argv)
 		username = argv[2];
 		password = argv[3];
 		User::register_user_with_params(username, password);
-
+	
 	}
-
 
 	if (args[1] == "--pass" || args[1] == "-p")
 	{
@@ -94,6 +93,41 @@ int main(int argc, char** argv)
 				}
 			}
 		}
+	}
+
+	if (args[1] == "--import" || args[1] == "-i")
+	{
+		if (args[2].empty())
+		{
+			cout << "\nEnter location of txt file with passwords:\n";
+			cin >> args[2];
+		}
+		if (args[3].empty())
+		{
+			cout << "\nEnter masterusername of account you want to import in\n";
+			cin >> args[3];
+		}
+		if (args[4].empty())
+		{
+			cout << "\nEnter masterpassword of account you want to import in\n";
+			cin >> args[4];
+			string pass;
+			cout << "\nEnter your password:\n";
+			cin >> pass;
+			while (!User::tryLogin(args[4], pass))
+			{
+				cout << "Wrong password!\nEnter password for " << args[3] << "or type exit to abort importing." << '\n';
+				cin >> pass[4];
+				if (pass == "exit")
+				{
+					cout << "\nExiting.\n";
+					break;
+				}
+			}
+			cout << "\nCorrect password!\n";
+		}
+		cout << "\nInitializing import sequence!\n";
+		import(args[2], args[3]);
 	}
 	
 	while (1)
@@ -127,6 +161,9 @@ int main(int argc, char** argv)
 			cin >> intinput;
 		}
 
+		string loc;
+		string usrToImp;
+		string passToImp;
 		switch (intinput)
 		{
 		case -1:printIntCommands(); break;
@@ -137,6 +174,18 @@ int main(int argc, char** argv)
 		case 5: listAllUsers(); break;
 		case 6: Website::listWebsites(); break;
 		case 7: Website::clearEmptyWebsites(); break;
+		case 8: 
+			cout << "\nEnter location: "; 
+			cin >> loc; 
+			cout << "\nEnter masterusername and masterpassword:";
+			cin >> usrToImp >> passToImp;
+			if (User::tryLogin(usrToImp, passToImp))
+			{
+				import(loc, usrToImp);
+			}
+			else
+				cout << "\nWrong password!\n";
+			break;
 		
 		default:
 			break;
@@ -179,6 +228,7 @@ int main(int argc, char** argv)
 					(*logged_in_usr).printPasswordHistoryForWebsite(logged_in_usr, websiteName);
 					break;
 			case 6: (*logged_in_usr).printActualPasswords(); break;
+			case 7: listPasswords(); break;
 			default:
 				break;
 			}
