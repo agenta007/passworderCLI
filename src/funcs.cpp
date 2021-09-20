@@ -12,7 +12,8 @@ void printHelp()
 		"CL options:\n" 
 		"passworder --login/-l USERNAME MASTERPASS\n"
 		"passworder --register/-r USERNAME MASTERPASS\n"
-		"passworder --pass/-p LOGIN_ON_WEBSITE MASTERPASS\n"
+		//"passworder --pass/-p LOGIN_ON_WEBSITE MASTERPASS\n"
+		"passworder --credentials/-c WEBSITE MASTERUSERNAME MASTERPASS\n"
 		"passworder --add/-a MASTERLOGIN MASTERPASS LOGIN PASSWORD"
 		"passworder --import/-i /path/to/username_password_website.txt(firefox_decrypt format) MASTERLOGIN MASTERPASS"
 		"";
@@ -442,6 +443,10 @@ void import(string& loc, string& masterusername)
 		}
 	}
 	cout << "\nImported " << countOfImports << " logins to profile " << masterusername << "\n";
+	for (size_t i = 0; i < websitesCount; i++)
+	{
+		websites[i].printEveryEntrySize();
+	}
 }
 
 void listAllUsers()
@@ -1030,11 +1035,24 @@ void listPasswords()
 			if (websites[j].getName() == (*usr).getRegisteredToWebsiteNameWithIndex(i))
 			{
 				UsernamePassPair* upp_ptr = nullptr;
+				string username, password;
 				upp_ptr = websites[j].pointToUPP((*usr).getUsername());
-				string username = (*upp_ptr).getUsername();
-				string password = (*upp_ptr).getActualPassPlainText();
+				if (upp_ptr==nullptr)
+				{
+					continue;
+				}
+				for (size_t l = 0; l < websites[j].getEntriesCount(); l++)
+				{
+					//if upp is owned cout, iterating over registered_users
+					if ((*upp_ptr).getOwner() == usr->getUsername())
+					{
+						username = (*upp_ptr).getUsername();
+						password = (*upp_ptr).getActualPassPlainText();
+						cout << (*usr).getRegisteredToWebsiteNameWithIndex(i) << " | " << username << " | " << password << '\n';
+					}
+					upp_ptr++;
+				}
 
-				cout << (*usr).getRegisteredToWebsiteNameWithIndex(i) << " | " << username << " | " << password << '\n';
 			}
 		}
 	}

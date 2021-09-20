@@ -70,30 +70,67 @@ int main(int argc, char** argv)
 	
 	}
 
-	if (args[1] == "--pass" || args[1] == "-p")
+	if (args[1] == "--credentials" || args[1] == "-c")
 	{
-		if (argc!=3)
-		{
-			cout << "Invalid usage of  --pass/-p => -p login_credential";
-			return 0;
-		}
 		for (size_t i = 0; i < websitesCount; i++)
 		{
-			for (size_t j = 0; j < websites[i].getEntriesCount(); j++)
+			cout << websites[i].getName() << " " << endl;
+			websites[i].printEveryEntrySize();
+		}
+		Website* websPtr = nullptr;
+		if (argc!=5)
+		{
+			cout << "\nCorrect usage: passworder --credentials/-c WEBSITE MASTERUSERNAME MASTERPASS\n";
+		}
+		else if (!User::tryLogin(args[3],args[4]))
+		{
+			cout << "\nWrong username and/or password.\n";
+		}
+		else
+		{
+			for (size_t i = 0; i < websitesCount; i++)
 			{
-				vector<UsernamePassPair>& reg_users = websites[i].getReggedUsers();
-				for (size_t k = 0; k < reg_users.size(); k++)
+				if (args[2] == websites[i].getName())
 				{
-					if (reg_users[k].getUsername() != args[2])
-					{
-						continue;
-					}
-					cout << reg_users[k].getPlainPassword() << "\n";
-					return 0;
+					websPtr = &websites[i];
 				}
 			}
 		}
+		if (websPtr==nullptr)
+		{
+			cout << "\nWebsite not found\n";
+		}
+		else
+		{
+			cout << (*websPtr).getCredentials(args[3]) << "\n";
+			return 0;
+		}
 	}
+
+	//if (args[1] == "--pass" || args[1] == "-p")
+	//{
+	//	if (argc!=3)
+	//	{
+	//		cout << "Invalid usage of  --pass/-p => -p login_credential";
+	//		return 0;
+	//	}
+	//	for (size_t i = 0; i < websitesCount; i++)
+	//	{
+	//		for (size_t j = 0; j < websites[i].getEntriesCount(); j++)
+	//		{
+	//			vector<UsernamePassPair>& reg_users = websites[i].getReggedUsers();
+	//			for (size_t k = 0; k < reg_users.size(); k++)
+	//			{
+	//				if (reg_users[k].getUsername() != args[2])
+	//				{
+	//					continue;
+	//				}
+	//				cout << reg_users[k].getPlainPassword() << "\n";
+	//				return 0;
+	//			}
+	//		}
+	//	}
+	//}
 
 	if (args[1] == "--import" || args[1] == "-i")
 	{

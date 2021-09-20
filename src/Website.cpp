@@ -135,7 +135,7 @@ void Website::add_user(string usrnm, string password)
 	UsernamePassPair added_entry(usrnm, password, findLoggedInUser().getUsername());
 	for (size_t i = 0; i < registered_users.size(); i++)
 	{
-		if (registered_users[i].getUsername() == usrnm)
+		if (registered_users[i].getUsername() == usrnm && registered_users[i].getOwner() == added_entry.getOwner())
 		{
 			cerr << "User with given username already exists.\nReturning.\n";
 			return;
@@ -352,4 +352,24 @@ string Website::convertToString()const
 		str += registered_users[i].convertToString();
 	}
 	return str;
+}
+
+string Website::getCredentials(string masteruser)const
+{
+	string str = "";
+	//UsernamePassPair* uppPtr = nullptr;
+	for (size_t i = 0; i < registered_users.size(); i++)
+	{
+		if (registered_users[i].getOwner() == masteruser)
+		{
+			str += registered_users[i].getUsername() + " " + registered_users[i].getActualPassPlainText() + '\n';
+		}
+	}
+	return str;
+}
+
+void Website::printEveryEntrySize()const
+{
+	cout << name << " has " << registered_users.size() << " entries.\n";
+	return;
 }

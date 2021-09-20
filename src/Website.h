@@ -46,5 +46,7 @@ public:
 	bool is_website_empty()const { return registered_users.empty(); }
 	void deleteWebsite();
 	string convertToString()const;
+	string getCredentials(string)const;
+	void printEveryEntrySize()const;
 };
 #endif

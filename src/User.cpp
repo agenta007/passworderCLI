@@ -350,6 +350,10 @@ void User::printActualPasswords()
 	for (string web_reg : registererd_to_websiteNames)
 	{
 		Website* current_website = Website::findWebsiteByName(web_reg);
+		if (current_website==nullptr)
+		{
+			continue;
+		}
 		UsernamePassPair* usr_on_website = current_website->findUsernamePassPairByName(findLoggedInUser().getUsername());
 		usr_on_website->printActualPassword();
 	}
