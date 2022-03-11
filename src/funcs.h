@@ -27,9 +27,12 @@ User& findLoggedInUser();
 //usermenu functions
 void addPasswordEntry();
 void addPasswordEntry(string, string, string);
+void importPassword(string&, string&, string&);
 void deletePasswordEntry();
 bool checkWebsiteAdded(string);
 Website& getWebsiteRef(string);
 void readCredential(string&, string&);
 void listPasswords();
+bool isMasterUserRegistered(string);
+void importFromFirefoxCSVExport(string);
 #endif // !_funcs_

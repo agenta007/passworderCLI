@@ -24,6 +24,18 @@ UsernamePassPair::UsernamePassPair(const UsernamePassPair& obj)
 		}
 	}
 }
+UsernamePassPair::UsernamePassPair(string& username, Password& pass)
+{
+	this->username = username;
+	owner = findLoggedInUser().getUsername();
+	passwords.push_back(pass);
+}
+//UsernamePassPair::UsernamePassPair(string& password, string& date, string& website)
+//{
+//	this->username = username;
+//	this->passwords.push_back(Password(password, date, website));
+//	this->owner = findLoggedInUser().getUsername();
+//}
 UsernamePassPair UsernamePassPair::createNewUsernamePassPair()
 {
 	string username, password;
@@ -79,6 +91,8 @@ string UsernamePassPair::getActualPassPlainText()const
 }
 string UsernamePassPair::getPlainPassword()const
 {
+	if (passwords.size() == 0)
+		return "";
 	return passwords[passwords.size() - 1].getPlaintext();
 }
 void UsernamePassPair::UPP_printHistory()

@@ -164,8 +164,8 @@ bool User::changePass()
 
 void User::operator=(const User& rhs)
 {
-	this->username = rhs.username;
-	this->masterpass = rhs.masterpass;
+	this->username = rhs.getUsername();
+	this->masterpass = rhs.getPass();
 	this->logged_on = rhs.logged_on;
 	for (size_t i = 0; i < rhs.registererd_to_websiteNames.size(); i++)
 	{
@@ -199,6 +199,12 @@ void printUsers()
 //TO BE FIXED
 void User::register_user(User* users)
 {
+	User newUser = createNewUser();
+	if (newUser.getUsername() == "" && newUser.getPass() == "")
+	{
+		return;
+	}
+
 	++usersCount;
 	if (usersCount > usersCap)
 	{
@@ -208,7 +214,7 @@ void User::register_user(User* users)
 		{
 			tmp[i] = users[i];
 		}
-		tmp[usersCount - 1] = createNewUser();
+		tmp[usersCount - 1] = newUser;
 		delete[] users;
 		users = new User[usersCap];
 		for (size_t i = 0; i < usersCount; i++)
@@ -219,9 +225,10 @@ void User::register_user(User* users)
 	}
 	else
 	{
-		users[usersCount - 1] = createNewUser();
+		users[usersCount - 1] = User(newUser);
 	}
-	cout << "Successfuly registered!\n";
+	cout << "Successfuly registered!\nNow please login!\n";
+	getLogin();
 }
 
 void User::register_user_with_params(string& username, string& password)
@@ -355,7 +362,8 @@ void User::printActualPasswords()
 			continue;
 		}
 		UsernamePassPair* usr_on_website = current_website->findUsernamePassPairByName(findLoggedInUser().getUsername());
-		usr_on_website->printActualPassword();
+		if (usr_on_website != nullptr)
+			usr_on_website->printActualPassword();
 	}
 }
 void User::printPasswordHistoryForWebsite(User* usr, string name)

@@ -72,6 +72,24 @@ Password::Password(string& plainText, string& strToSet, string& enc, int index, 
 	int timeInt = atoi(time.c_str());
 	tmOfCrtn = timeInt;
 }
+
+Password::Password(string& plainText, string& date, string& website)
+{
+	this->plainText = plainText;
+	length = plainText.size();
+	encrypted = encryptPass(plainText);
+	setLoadStr();
+	string ownername = findLoggedInUser().getUsername();
+	UsernamePassPair* UPP = Website::findWebsiteByName(website)->findUsernamePassPairByName(ownername);
+	if (UPP != nullptr)
+		this->index = UPP->getPassCount();
+	else
+		index = 0;
+	setSecLevel();
+	int timeInt = atoi(date.c_str());
+	tmOfCrtn = timeInt;
+}
+
 int Password::calcSecLevel()
 {
 	//secLevels

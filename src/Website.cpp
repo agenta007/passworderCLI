@@ -151,12 +151,11 @@ void Website::add_user(UsernamePassPair* entryToAdd)
 	{
 		if (registered_users[i].getOwner() == entryToAdd->getOwner())
 		{
-			//cout << "User already exists\n";
-			//registered_users[i].mergeUPPs(*entryToAdd);
+			cout << "User already exists\n";
+			registered_users[i].mergeUPPs(*entryToAdd);
 			return;
 		}
 	}
-
 	registered_users.push_back(*entryToAdd);
 }
 
@@ -372,4 +371,10 @@ void Website::printEveryEntrySize()const
 {
 	cout << name << " has " << registered_users.size() << " entries.\n";
 	return;
+}
+Website::Website(string& link, string& domain, string& name)
+{
+	this->link = link;
+	this->domain = domain;
+	this->name = name;
 }

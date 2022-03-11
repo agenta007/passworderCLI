@@ -4,7 +4,7 @@
 #include "globals.h"
 #include <string>
 #include <sstream>
-
+#include <regex>
 void printHelp()
 {
 	cout << "Password Manager CLI.\n This is a simple commandline tool to manage your passwords for any offline and/or online accounts.\n"
@@ -49,6 +49,7 @@ void printUserMenu()
 		"\n5 - print password history on a website"
 		"\n6 - list all actual password entries"
 		"\n7 - list all website | username | password"
+		"\n8 - import credentials from Firefox CSV export file"
 		"\n"
 		;
 }
@@ -636,6 +637,11 @@ User createNewUser()
 	string username, password;
 	cout << "Enter your username: ";
 	cin >> username;
+	if (isMasterUserRegistered(username))
+	{
+		cout << "User with name " << username << " exists already.\n";
+		return User();
+	}
 	cout << "\nEnter your password: ";
 	cin >> password;
 	User newUser(username, password, 0);
@@ -933,6 +939,129 @@ void addPasswordEntry(string link, string login, string password)
 
 }
 
+void importPassword(string& login, string& password, string& time, string& link)
+{
+	User& usr = findLoggedInUser();
+	int countSlashes = 0;
+	string websiteDomain, websiteName;
+	
+
+	int slashes = 0;
+	bool flag = false;
+	websiteDomain = "";
+	for (int i = 0; i < link.size(); i++)
+	{
+		if (slashes == 2)
+		{
+			flag = true;
+		}
+		if (flag == true)
+		{
+			websiteDomain += link[i];
+			continue;
+		}
+		if (link[i] == '/')
+		{
+			slashes++;
+		}
+	}
+
+
+	int totalDots = 0;
+	for (auto& letter : link)
+		if (letter == '.')
+			++totalDots;
+
+	flag = false;
+	websiteName = "";
+	if (totalDots==2)
+	{
+		for (size_t i = 0; i < websiteDomain.size(); i++)
+		{
+			if (websiteDomain[i]=='.')
+			{
+				flag = !flag;
+				continue;
+			}
+			if (flag)
+				websiteName += websiteDomain[i];
+		}
+	}
+	else
+	{
+		flag = true;
+		for (size_t i = 0; i < websiteDomain.size(); i++)
+		{
+			if (websiteDomain[i] == '.')
+			{
+				flag = !flag;
+			}
+			if (flag)
+				websiteName += websiteDomain[i];
+		}
+
+	}
+
+	//REGEX STRUGGLE
+	/*
+	std::regex regex("(\.|/)[a-z]+\.");
+	std::smatch match;
+	
+	while (std::regex_search(websiteDomain, match, regex)) 
+	{
+		for (auto x : match) std::cout << x << " ";
+		std::cout << std::endl;
+		match.suffix().str();
+	}
+	
+	*/
+	
+	/*
+
+
+	int dotsToRead;
+	if (totalDots == 2)
+	{
+		dotsToRead = 1;
+	}
+	else
+		dotsToRead = 0;
+	int slashes = 0;
+	bool flag;
+	bool flagForName;
+	websiteDomain = websiteName = "";
+	for (size_t i = 0; i < link.size(); i++)
+	{
+		if (flag==true)
+		{
+			websiteDomain += link[i];
+			if (dotsToRead==0)
+			{
+
+			}
+		}
+		if (link[i] == '/')
+		{
+			slashes++;
+		}
+		if (slashes==2)
+		{
+			flag = true;
+		}
+	}
+	*/
+
+	Website* website;
+
+	if (!checkWebsiteAdded(websiteName))
+		Website::addWebsite(Website(link, websiteDomain, websiteName));
+	website = Website::findWebsiteByName(websiteName);
+	Password pass(password, time, websiteName);
+	UsernamePassPair user_to_add(login, pass);
+	website->add_user(&user_to_add);
+	usr.registerWebsiteName(website->getName());
+}
+
 void deletePasswordEntry()
 {
 	User& usr = findLoggedInUser();
@@ -1025,35 +1154,76 @@ void deletePasswordEntry()
 
 void listPasswords()
 {
-	User* usr = &findLoggedInUser();
+	//User* usr = &findLoggedInUser();
 	//for every registeredToWebsite find website, for every UPP in website find UPP, get plaintext of upp.back
-	for (size_t i = 0; i < (*usr).getRegisteredToWebsiteNamesCount(); i++)
+	for (Website* websiteP = websites; websiteP < &websites[websitesCount-1]; ++websiteP)
 	{
-		for (int j = 0; j < websitesCount; j++)
+		vector<UsernamePassPair>& reggedUsers = (*websiteP).getReggedUsers();
+		int entries = reggedUsers.size();
+		for (int i = 0; i < entries; ++i)
 		{
-			//search websites to match logged in username
-			if (websites[j].getName() == (*usr).getRegisteredToWebsiteNameWithIndex(i))
-			{
-				UsernamePassPair* upp_ptr = nullptr;
-				string username, password;
-				upp_ptr = websites[j].pointToUPP((*usr).getUsername());
-				if (upp_ptr==nullptr)
-				{
-					continue;
-				}
-				for (size_t l = 0; l < websites[j].getEntriesCount(); l++)
-				{
-					//if upp is owned cout, iterating over registered_users
-					if ((*upp_ptr).getOwner() == usr->getUsername())
-					{
-						username = (*upp_ptr).getUsername();
-						password = (*upp_ptr).getActualPassPlainText();
-						cout << (*usr).getRegisteredToWebsiteNameWithIndex(i) << " | " << username << " | " << password << '\n';
-					}
-					upp_ptr++;
-				}
-
-			}
+			cout << websiteP->getName() << " | " << reggedUsers[i].getUsername() << " | " << reggedUsers[i].getPlainPassword() << "\n";
 		}
 	}
+}
+
+bool isMasterUserRegistered(string name)
+{
+	for (size_t i = 0; i < usersCount; i++)
+	{
+		if (users[i].getUsername() == name)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void importFromFirefoxCSVExport(string path)
+{
+	int countOfImports = 0;
+	ifstream file(path);
+	string line;
+	if (!file.is_open())
+	{
+		cout << " Could not open firefox exported CSV file.\n";
+		return;
+	}
+	while (std::getline(file, line))
+	{
+		vector<string> lineVec;
+		if (line[1]=='u')
+			continue;
+		int countOfQuotMarks = 0;
+		bool readFlag = false;
+		string entry = "";
+		for (size_t i = 0; i < line.size(); i++)
+		{
+			if (line[i] == '\"')
+			{
+				if (readFlag == true)
+				{
+					readFlag = false;
+					lineVec.push_back(entry);
+					entry = "";
+					continue;
+				}
+				else
+				{
+					readFlag = true;
+					continue;
+				}
+			}
+			if (readFlag == true)
+			{
+				entry += line[i];
+			}
+		}
+		cout << "Username: " << lineVec[1] << ", Password: " << lineVec[2] << ", Time: " << lineVec.back() << ", Link: " << lineVec.front() << "\n";;
+		importPassword(lineVec[1], lineVec[2], lineVec.back(), lineVec.front());
+		++countOfImports;
+	}
+	cout << "Imported " << countOfImports << " password entries.\n";
+	//Website::addWebsite(Website::Website(lineVec.front()));
+	//string& login, string& password, string& time, string& link
 }

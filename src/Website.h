@@ -28,6 +28,7 @@ public:
 	Website(string, bool);
 	//single string may be domain or link
 	Website(string);
+	Website(string&, string&, string&);
 
 	void add_user(string, string);
 	void add_user(UsernamePassPair*);

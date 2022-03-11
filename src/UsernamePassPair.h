@@ -15,6 +15,7 @@ public:
 	UsernamePassPair(string, string, string);
 	UsernamePassPair(string, string, vector<Password>&);
 	UsernamePassPair(const UsernamePassPair&);
+	UsernamePassPair(string&, Password&);
 	static UsernamePassPair createNewUsernamePassPair();
 	static UsernamePassPair createNewUsernamePassPairWithParams(string usr, string pass);
 	void updatePassword(string password);

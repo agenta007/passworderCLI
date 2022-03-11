@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "Website.h"
 #include <sstream>
+#include <regex>
 using std::vector;
 using namespace std;
 
@@ -207,7 +208,7 @@ int main(int argc, char** argv)
 		case 0:save(); return 0;
 		case 1:getLogin(); logged_in_usr = &findLoggedInUser(); break;
 		case 2: logout(); break;
-		case 3: User::register_user(users); break;
+		case 3: User::register_user(users); logged_in_usr = &findLoggedInUser(); break;
 		case 5: listAllUsers(); break;
 		case 6: Website::listWebsites(); break;
 		case 7: Website::clearEmptyWebsites(); break;
@@ -223,10 +224,10 @@ int main(int argc, char** argv)
 			else
 				cout << "\nWrong password!\n";
 			break;
-		
 		default:
 			break;
 		}
+		//if only one user is logged on we can proceed to user menu
 		while (User::check_logon())
 		{
 			if (logged_in_usr == nullptr)
@@ -259,6 +260,11 @@ int main(int argc, char** argv)
 			case 3: deletePasswordEntry(); break;
 			case 4: (*logged_in_usr).delete_my_account(); break;
 			case 5: 
+				if ((*logged_in_usr).getRegisteredToWebsiteNamesCount() == 0)
+				{
+					cout << "You haven't registered anywhere yet.\n";
+					break;
+				}
 					(*logged_in_usr).printWebsites();
 					cout << "\nEnter website name to see history for: ";
 					cin >> websiteName;
@@ -266,6 +272,7 @@ int main(int argc, char** argv)
 					break;
 			case 6: (*logged_in_usr).printActualPasswords(); break;
 			case 7: listPasswords(); break;
+			case 8: importFromFirefoxCSVExport("C:\\Users\\agenta\\source\\repos\\passworderCLI_\\logins.csv"); break;
 			default:
 				break;
 			}

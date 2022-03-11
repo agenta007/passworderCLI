@@ -13,6 +13,7 @@ public:
 	Password();
 	Password(string, int);
 	Password(string&, string&, string&, int, int, string&);
+	Password(string&, string&, string&);
 	int calcSecLevel();
 	string getPlaintext()const;
 	string getEncrypted()const;
